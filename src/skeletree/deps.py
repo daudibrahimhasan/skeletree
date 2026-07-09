@@ -189,7 +189,7 @@ def _try_cargo(root: Path, out: list[LibraryDeps]) -> None:
 # Go
 # ---------------------------------------------------------------------------
 
-_GO_REQ_RE = re.compile(r"^\s+([\w.\-/]+)\s+v[\w.\-+]+")
+_GO_REQ_RE = re.compile(r"^\s+([\w.\-/]+)\sv[\w.\-+]+")
 
 
 def _try_gomod(root: Path, out: list[LibraryDeps]) -> None:
@@ -215,7 +215,7 @@ def _try_gomod(root: Path, out: list[LibraryDeps]) -> None:
                     runtime.append(name)
         elif stripped.startswith("require "):
             rest = stripped[len("require "):].strip()
-            m = re.match(r"([\w.\-/]+)\s+v", rest)
+            m = re.match(r"([\w.\-/]+)\sv", rest)
             if m:
                 parts = m.group(1).split("/")
                 name = "/".join(parts[-2:]) if len(parts) >= 2 else parts[-1]

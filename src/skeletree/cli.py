@@ -223,7 +223,7 @@ def init(
     if claude_md.is_file():
         existing = claude_md.read_text(encoding="utf-8")
         if map_file in existing or "PROJECT_MAP.md" in existing:
-            typer.echo(f"✓ CLAUDE.md already references the project map (no change).")
+            typer.echo("✓ CLAUDE.md already references the project map (no change).")
         else:
             sep = "" if existing.endswith("\n") else "\n"
             claude_md.write_text(existing + sep + claude_pointer + "\n", encoding="utf-8")
