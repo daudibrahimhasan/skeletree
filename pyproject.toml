@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "skeletree"
-version = "0.1.0"
+version = "1.0.0"
 description = "A token-cheap skeleton of any repo for AI coding agents — tree + signatures, no bodies."
 readme = "README.md"
 license = "MIT"
@@ -77,5 +77,4 @@ ignore = ["E501", "B008"]
 
 [tool.skeletree]
 # skeletree dogfoods its own config. These are also the defaults.
-out = "PROJECT_MAP.md"
 format = "md"
