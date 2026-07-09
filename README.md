@@ -2,6 +2,15 @@
   <img src="public/skeletree-logo.png" alt="skeletree logo" width="200">
 </p>
 
+[![CI](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml/badge.svg)](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/skeletree.svg)](https://pypi.org/project/skeletree/)
+[![Downloads](https://img.shields.io/pypi/dm/skeletree.svg)](https://pypi.org/project/skeletree/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/daudibrahimhasan/skeletree?style=social)](https://github.com/daudibrahimhasan/skeletree)
+[![Last Commit](https://img.shields.io/github/last-commit/daudibrahimhasan/skeletree)](https://github.com/daudibrahimhasan/skeletree/commits)
+[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+
 # 🌳 skeletree
 
 **Stop burning 50K tokens every time your AI agent opens a repo.**
@@ -31,15 +40,6 @@ Token need now: 759 tok
 > No `uv` or `pipx`? `pip install skeletree` works too — see [Install](#install) below.
 
 **🔒 100% local — your code never leaves your machine. No API calls, no telemetry.**
-
-[![CI](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml/badge.svg)](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/skeletree.svg)](https://pypi.org/project/skeletree/)
-[![Downloads](https://img.shields.io/pypi/dm/skeletree.svg)](https://pypi.org/project/skeletree/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/daudibrahimhasan/skeletree?style=social)](https://github.com/daudibrahimhasan/skeletree)
-[![Last Commit](https://img.shields.io/github/last-commit/daudibrahimhasan/skeletree)](https://github.com/daudibrahimhasan/skeletree/commits)
-[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 ---
 
