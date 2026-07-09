@@ -16,7 +16,7 @@ from . import __version__
 from .config import Config
 from .core import build_map
 from .render import json_out, markdown
-from .tokens import compute_savings
+from .tokens import compute_savings, human
 
 _DEFAULT_COMMAND = "map"
 
@@ -73,7 +73,7 @@ def map_command(
         Path("."), help="Repo root to map.", show_default=False
     ),
     out: str = typer.Option(
-        None, "--out", "-o", help="Output file. Use '-' for stdout. [default: PROJECT_MAP.md]"
+        None, "--out", "-o", help="Output file. Use '-' for stdout. [default: skeletree-<name>.md]"
     ),
     fmt: str = typer.Option(
         None, "--format", "-f", help="Output format: md | json. [default: md]"
@@ -118,6 +118,7 @@ def _run_map(
         raise typer.Exit(2)
 
     project, stats = build_map(root, config)
+    effective_out = config.out or f"skeletree-{root.name}.md"
 
     if config.fmt == "json":
         # Two-pass: render to measure, then embed the measured savings.
@@ -129,16 +130,50 @@ def _run_map(
         savings = compute_savings(project, first)
         output = markdown.render(project, savings.headline())
 
-    _emit(output, config.out, root)
+    _emit(output, effective_out, root)
 
     if not quiet:
-        target = "stdout" if config.out == "-" else config.out
-        typer.secho(savings.headline(), fg="green", bold=True, err=True)
-        typer.echo(
-            f"  {stats.total_files} files "
-            f"({stats.parsed} parsed, {stats.cached} cached) → {target}",
-            err=True,
-        )
+        _print_scan_summary(stats, savings, effective_out)
+
+# ── ANSI color constants (matching tests/token_analyzer.py) ──────────────
+_RESET = "\033[0m"
+_BOLD = "\033[1m"
+_DIM = "\033[2m"
+_GREEN = "\033[38;5;115m"
+_AMBER = "\033[38;5;215m"
+
+
+def _print_scan_summary(stats, savings, effective_out: str) -> None:
+    """Print the full colorized token analysis summary to stderr."""
+    import sys as _sys
+
+    w = _sys.stderr.write
+
+    total_tokens = stats.total_chars // 4
+    target = "stdout" if effective_out == "-" else effective_out
+
+    w(f"\n{_BOLD}Scan complete{_RESET}\n")
+    w(f"  Files scanned : {stats.total_files}\n")
+    w(f"  Total chars   : {stats.total_chars:,}\n")
+    w(
+        f"  {_AMBER}{_BOLD}Estimated tokens to read this repo: "
+        f"{human(total_tokens)}  (~{total_tokens:,} tok){_RESET}\n"
+    )
+    w("\n")
+
+    if stats.by_ext:
+        w(f"{_BOLD}Top contributors:{_RESET}\n")
+        for ext, tok in sorted(stats.by_ext.items(), key=lambda x: -x[1])[:6]:
+            w(f"  {ext:<12} {human(tok):>8} tok\n")
+        w("\n")
+
+    w(f"{_GREEN}{_BOLD}skeleeeeed!{_RESET}\n")
+    w(f"{_GREEN}Token need now: {human(savings.map_tokens)} tok{_RESET}\n")
+    w(
+        f"  {stats.total_files} files "
+        f"({stats.parsed} parsed, {stats.cached} cached)\n"
+    )
+    w(f"→ {target}\n")
 
 
 def _emit(output: str, out: str, root: Path) -> None:
@@ -159,8 +194,6 @@ def _emit(output: str, out: str, root: Path) -> None:
         typer.secho(f"skeletree: cannot write {dest}: {exc}", fg="red", err=True)
         raise typer.Exit(1) from exc
 
-
-_CLAUDE_POINTER = "Project map: see `PROJECT_MAP.md` — regenerate with `skeletree`."
 
 _HOOK_SNIPPET = """\
 {
@@ -183,18 +216,20 @@ def init(
     """Wire the map into Claude Code: add a CLAUDE.md pointer, print a hook snippet."""
     _force_utf8()
     root = path.resolve()
+    map_file = f"skeletree-{root.name}.md"
+    claude_pointer = f"Project map: see `{map_file}` — regenerate with `skeletree`."
     claude_md = root / "CLAUDE.md"
 
     if claude_md.is_file():
         existing = claude_md.read_text(encoding="utf-8")
-        if "PROJECT_MAP.md" in existing:
-            typer.echo("✓ CLAUDE.md already references PROJECT_MAP.md (no change).")
+        if map_file in existing or "PROJECT_MAP.md" in existing:
+            typer.echo(f"✓ CLAUDE.md already references the project map (no change).")
         else:
             sep = "" if existing.endswith("\n") else "\n"
-            claude_md.write_text(existing + sep + _CLAUDE_POINTER + "\n", encoding="utf-8")
+            claude_md.write_text(existing + sep + claude_pointer + "\n", encoding="utf-8")
             typer.echo("✓ Appended project-map pointer to CLAUDE.md.")
     else:
-        claude_md.write_text(f"# {root.name}\n\n{_CLAUDE_POINTER}\n", encoding="utf-8")
+        claude_md.write_text(f"# {root.name}\n\n{claude_pointer}\n", encoding="utf-8")
         typer.echo("✓ Created CLAUDE.md with a project-map pointer.")
 
     typer.echo("")

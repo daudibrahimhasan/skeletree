@@ -40,12 +40,8 @@ class TokenSavings:
         return round(100 * self.saved_tokens / self.baseline_tokens)
 
     def headline(self) -> str:
-        """One-line summary, e.g. 'map ≈ 5.1K tokens · full-read baseline ≈ 51K · ~90% smaller'."""
-        return (
-            f"map ≈ {_human(self.map_tokens)} tokens · "
-            f"full-read baseline ≈ {_human(self.baseline_tokens)} · "
-            f"~{self.percent_smaller}% smaller"
-        )
+        """One-line summary, e.g. 'map≈5.1K tok · ~90% smaller'."""
+        return f"map≈{human(self.map_tokens)} tok · ~{self.percent_smaller}% smaller"
 
 
 def compute_savings(project: ProjectMap, rendered_map: str) -> TokenSavings:
@@ -62,7 +58,7 @@ def estimate_tokens_from_chars(char_count: int) -> int:
     return round(char_count / CHARS_PER_TOKEN)
 
 
-def _human(n: int) -> str:
+def human(n: int) -> str:
     """Compact human form: 512 -> '512', 5123 -> '5.1K', 1_200_000 -> '1.2M'."""
     if n < 1000:
         return str(n)

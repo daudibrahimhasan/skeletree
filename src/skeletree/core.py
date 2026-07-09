@@ -1,15 +1,18 @@
 """The pipeline: walk -> extract (cached) -> build tree -> ProjectMap.
 
 ``build_map`` is the one function the CLI and tests call. It returns the map
-plus a small ``BuildStats`` (parsed vs. cache-hit counts) so callers — and the
-cache test — can see what actually got re-parsed.
+plus a small ``BuildStats`` (parsed vs. cache-hit counts, total chars, and
+per-extension token breakdown) so callers — and the cache test — can see what
+actually got re-parsed.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import deps as _deps
 from .cache import Cache
 from .config import Config
 from .extractors import extract_file
@@ -23,6 +26,8 @@ class BuildStats:
     parsed: int = 0  # actually read + extracted this run
     cached: int = 0  # served from cache, untouched
     truncated: int = 0  # dropped by max_files
+    total_chars: int = 0  # sum of all source char counts
+    by_ext: dict[str, int] = field(default_factory=dict)  # ext -> token count
 
 
 def build_map(root: Path, config: Config) -> tuple[ProjectMap, BuildStats]:
@@ -40,6 +45,10 @@ def build_map(root: Path, config: Config) -> tuple[ProjectMap, BuildStats]:
         entry = _entry_for(path, root, cache, stats)
         if entry is not None:
             files.append(entry)
+            # Accumulate per-extension token stats for the CLI summary.
+            stats.total_chars += entry.char_count
+            ext = os.path.splitext(entry.path)[1].lower() or "(no ext)"
+            stats.by_ext[ext] = stats.by_ext.get(ext, 0) + (entry.char_count // 4)
 
     stats.total_files = len(files)
     cache.save()
@@ -48,6 +57,8 @@ def build_map(root: Path, config: Config) -> tuple[ProjectMap, BuildStats]:
     project.tree = build_tree(
         [f.path for f in files], root.name, config.collapse_threshold
     )
+    project.deps = _deps.detect(root)
+    project.description = _deps.detect_description(root)
     return project, stats
 
 
