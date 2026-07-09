@@ -73,7 +73,7 @@ def map_command(
         Path("."), help="Repo root to map.", show_default=False
     ),
     out: str = typer.Option(
-        None, "--out", "-o", help="Output file. Use '-' for stdout. [default: skeletree-<name>.md]"
+        None, "--out", "-o", help="Output file. Use '-' for stdout. [default: skeletree.md]"
     ),
     fmt: str = typer.Option(
         None, "--format", "-f", help="Output format: md | json. [default: md]"
@@ -118,7 +118,7 @@ def _run_map(
         raise typer.Exit(2)
 
     project, stats = build_map(root, config)
-    effective_out = config.out or f"skeletree-{root.name}.md"
+    effective_out = config.out or "skeletree.md"
 
     if config.fmt == "json":
         # Two-pass: render to measure, then embed the measured savings.
@@ -216,7 +216,7 @@ def init(
     """Wire the map into Claude Code: add a CLAUDE.md pointer, print a hook snippet."""
     _force_utf8()
     root = path.resolve()
-    map_file = f"skeletree-{root.name}.md"
+    map_file = "skeletree.md"
     claude_pointer = f"Project map: see `{map_file}` — regenerate with `skeletree`."
     claude_md = root / "CLAUDE.md"
 

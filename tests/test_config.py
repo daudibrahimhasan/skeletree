@@ -7,7 +7,7 @@ from skeletree.config import DEFAULT_IGNORE_DIRS, Config
 
 def test_defaults(tmp_path):
     cfg = Config.load(tmp_path)
-    assert cfg.out == "PROJECT_MAP.md"
+    assert cfg.out == ""
     assert cfg.fmt == "md"
     assert cfg.use_cache is True
     assert ".git" in cfg.ignore_dirs
@@ -38,7 +38,7 @@ def test_standalone_toml_takes_priority(tmp_path):
 def test_malformed_toml_falls_back(tmp_path, capsys):
     (tmp_path / ".skeletree.toml").write_text("this is = = not toml")
     cfg = Config.load(tmp_path)
-    assert cfg.out == "PROJECT_MAP.md"  # defaults
+    assert cfg.out == ""  # defaults
 
 
 def test_cli_overrides_win():

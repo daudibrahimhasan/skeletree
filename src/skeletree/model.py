@@ -13,6 +13,31 @@ from typing import Any
 
 
 @dataclass
+class LibraryDeps:
+    """Dependencies detected from a project manifest (pyproject.toml, package.json, etc.)."""
+
+    ecosystem: str  # "python", "node", "rust", "go"
+    runtime: list[str] = field(default_factory=list)
+    dev: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        d: dict[str, Any] = {"ecosystem": self.ecosystem}
+        if self.runtime:
+            d["runtime"] = self.runtime
+        if self.dev:
+            d["dev"] = self.dev
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> LibraryDeps:
+        return cls(
+            ecosystem=d["ecosystem"],
+            runtime=list(d.get("runtime", [])),
+            dev=list(d.get("dev", [])),
+        )
+
+
+@dataclass
 class Symbol:
     """A single top-level (or nested) declaration: signature, never a body.
 
@@ -120,10 +145,14 @@ class ProjectMap:
     files: list[FileEntry] = field(default_factory=list)
     tree: DirNode | None = None
     truncated: int = 0  # how many files were dropped by --max-files
+    deps: list[LibraryDeps] = field(default_factory=list)
+    description: str = ""  # from manifest or README
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "root_name": self.root_name,
+            "description": self.description,
             "truncated": self.truncated,
+            "deps": [d.to_dict() for d in self.deps],
             "files": [f.to_dict() for f in self.files],
         }

@@ -12,7 +12,7 @@ $ uvx skeletree
   🌳 skeletree · scanning myapp
   ✔ 47 files parsed (Python, TypeScript)
   ✔ 312 symbols extracted
-  ✔ skeletree-myapp.md written — map≈5.1K tok · ~90% smaller
+  ✔ skeletree.md written — map≈5.1K tok · ~90% smaller
 ```
 
 > No `uv` or `pipx`? `pip install skeletree` works too — see [Install](#install) below.
@@ -56,7 +56,7 @@ When Claude Code, Cursor, or Aider opens an unfamiliar repo, the first thing it 
 uvx skeletree
 ```
 
-One command scans your repo and writes `skeletree-<projectname>.md` — a compact map containing the **project description**, **library dependencies**, **directory tree**, and every **class, function, and signature**, with no function bodies. An agent reads that one file and knows the codebase cold.
+One command scans your repo and writes `skeletree.md` — a compact map containing the **project description**, **library dependencies**, **directory tree**, and every **class, function, and signature**, with no function bodies. An agent reads that one file and knows the codebase cold.
 
 ---
 
@@ -71,7 +71,7 @@ graph TD
     Scan --> Deps[Library Dependencies]
     Scan --> Tree[Directory Tree]
     Scan --> Symbols[Symbols & Signatures]
-    Desc & Deps & Tree & Symbols --> Map[skeletree-name.md]
+    Desc & Deps & Tree & Symbols --> Map[skeletree.md]
     Map --> Agent[(AI Agent reads one file)]
 ```
 
@@ -181,7 +181,7 @@ pip install skeletree
 ## Usage
 
 ```bash
-skeletree                   # scan current dir → skeletree-<name>.md
+skeletree                   # scan current dir → skeletree.md
 skeletree path/to/repo      # scan a different repo by path
 skeletree -o -              # print the map to stdout instead of writing a file
 skeletree --format json     # emit machine-readable JSON (useful for piping into
@@ -207,7 +207,7 @@ Or set it up manually — create these two files in your project:
 
 **`CLAUDE.md`**
 ```markdown
-Project map: see `skeletree-<name>.md` — regenerate with `skeletree`.
+Project map: see `skeletree.md` — regenerate with `skeletree`.
 Read it before doing anything.
 ```
 
@@ -266,7 +266,7 @@ Zero-config by default. To customize, add a `[tool.skeletree]` table to `pyproje
 
 ```toml
 [tool.skeletree]
-out = "custom-name.md"   # override the default skeletree-<name>.md
+out = "custom-name.md"   # override the default skeletree.md
 format = "md"            # md | json
 max_files = 5000
 collapse_threshold = 40  # collapse dirs with more than N direct files

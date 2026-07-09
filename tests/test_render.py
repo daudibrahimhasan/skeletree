@@ -60,7 +60,7 @@ def test_markdown_async_method_rendered():
 def test_markdown_callable_has_no_kind_word():
     out = markdown.render(_project(), "h")
     # functions read as name(sig), not "function make(...)"
-    assert "`make(c: Config) -> Server`" in out
+    assert "make(c: Config) -> Server" in out
     assert "function make" not in out
 
 

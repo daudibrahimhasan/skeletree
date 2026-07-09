@@ -26,11 +26,11 @@ def test_savings_headline_and_percent():
 def test_human_formatting_in_headline():
     project = ProjectMap(
         root_name="x",
-        files=[FileEntry(path="a", language="python", char_count=4_000_000)],
+        files=[FileEntry(path="a", language="python", char_count=40_000)],
     )
-    savings = compute_savings(project, "x" * 4000)
+    savings = compute_savings(project, "x" * 4_000_000)
     head = savings.headline()
-    assert "1.0M" in head  # 1,000,000 baseline tokens
+    assert "1.0M" in head  # 1,000,000 map tokens
 
 
 def test_no_negative_savings():

@@ -15,6 +15,7 @@ from ..tokens import TokenSavings
 def render(project: ProjectMap, savings: TokenSavings) -> str:
     payload = {
         "root_name": project.root_name,
+        "description": project.description,
         "savings": {
             "map_tokens": savings.map_tokens,
             "baseline_tokens": savings.baseline_tokens,
@@ -23,6 +24,7 @@ def render(project: ProjectMap, savings: TokenSavings) -> str:
             "file_count": savings.file_count,
         },
         "truncated": project.truncated,
+        "deps": [d.to_dict() for d in project.deps],
         "files": [f.to_dict() for f in project.files],
     }
     return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"

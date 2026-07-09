@@ -64,7 +64,7 @@ DEFAULT_COLLAPSE_THRESHOLD = 40
 class Config:
     """Resolved configuration. Frozen so it can be passed around freely."""
 
-    out: str = "PROJECT_MAP.md"
+    out: str = ""  # "" → resolved to skeletree.md at emit time
     fmt: str = "md"  # "md" | "json"
     max_files: int = 5000
     collapse_threshold: int = DEFAULT_COLLAPSE_THRESHOLD
@@ -87,7 +87,7 @@ class Config:
         if not data:
             return cls()
         return cls(
-            out=str(data.get("out", "PROJECT_MAP.md")),
+            out=str(data.get("out", "")),
             fmt=str(data.get("format", "md")),
             max_files=int(data.get("max_files", 5000)),
             collapse_threshold=int(

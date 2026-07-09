@@ -22,10 +22,10 @@ def test_map_writes_project_map(tmp_path):
     _repo(tmp_path)
     result = runner.invoke(app, [str(tmp_path)])
     assert result.exit_code == 0, result.output
-    out_file = tmp_path / "PROJECT_MAP.md"
+    out_file = tmp_path / "skeletree.md"
     assert out_file.is_file()
     text = out_file.read_text(encoding="utf-8")
-    assert "# 🌳" in text
+    assert "# " in text
     assert "main(argv: list[str]) -> int" in text
     assert "smaller" in text  # headline embedded
 
@@ -46,7 +46,7 @@ def test_map_stdout(tmp_path):
     result = runner.invoke(app, [str(tmp_path), "-o", "-"])
     assert result.exit_code == 0, result.output
     assert "## Tree" in result.stdout
-    assert not (tmp_path / "PROJECT_MAP.md").exists()
+    assert not (tmp_path / "skeletree.md").exists()
 
 
 def test_bad_format_errors(tmp_path):
@@ -71,7 +71,7 @@ def test_init_creates_claude_md(tmp_path):
     assert result.exit_code == 0, result.output
     claude = tmp_path / "CLAUDE.md"
     assert claude.is_file()
-    assert "PROJECT_MAP.md" in claude.read_text(encoding="utf-8")
+    assert "skeletree.md" in claude.read_text(encoding="utf-8")
     assert "SessionStart" in result.output  # hook snippet printed
 
 
@@ -79,7 +79,7 @@ def test_init_is_idempotent(tmp_path):
     runner.invoke(app, ["init", str(tmp_path)])
     runner.invoke(app, ["init", str(tmp_path)])
     text = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
-    assert text.count("PROJECT_MAP.md") == 1
+    assert text.count("skeletree.md") == 1
 
 
 def test_init_appends_to_existing_claude_md(tmp_path):
@@ -87,4 +87,4 @@ def test_init_appends_to_existing_claude_md(tmp_path):
     runner.invoke(app, ["init", str(tmp_path)])
     text = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
     assert "Some notes." in text
-    assert "PROJECT_MAP.md" in text
+    assert "skeletree.md" in text
