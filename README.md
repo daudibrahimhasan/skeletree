@@ -18,9 +18,7 @@ $ uvx skeletree
 **🔒 100% local — your code never leaves your machine. No API calls, no telemetry.**
 
 [![CI](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml/badge.svg)](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/skeletree.svg)](https://pypi.org/project/skeletree/)
-[![Downloads](https://img.shields.io/pypi/dm/skeletree.svg)](https://pypi.org/project/skeletree/)
-[![Python](https://img.shields.io/pypi/pyversions/skeletree.svg)](https://pypi.org/project/skeletree/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
