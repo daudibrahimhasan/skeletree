@@ -15,6 +15,8 @@ $ uvx skeletree
   ✔ skeletree-myapp.md written — map≈5.1K tok · ~90% smaller
 ```
 
+> No `uv` or `pipx`? `pip install skeletree` works too — see [Install](#install) below.
+
 **🔒 100% local — your code never leaves your machine. No API calls, no telemetry.**
 
 [![CI](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml/badge.svg)](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml)
