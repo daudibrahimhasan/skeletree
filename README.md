@@ -9,10 +9,23 @@
 ```
 $ uvx skeletree
 
-  🌳 skeletree · scanning myapp
-  ✔ 47 files parsed (Python, TypeScript)
-  ✔ 312 symbols extracted
-  ✔ skeletree.md written — map≈5.1K tok · ~90% smaller
+Scan complete
+  Files scanned : 106
+  Total chars   : 3,176,672
+  Estimated tokens to read this repo: 794.2K  (~794,168 tok)
+
+Top contributors:
+  .js            382.8K tok
+  .html          329.3K tok
+  .css            37.7K tok
+  .svg            26.3K tok
+  .md             10.4K tok
+  .json            7.7K tok
+
+skeleeeeed!
+Token need now: 759 tok
+  106 files (1 parsed, 105 cached)
+→ skeletree.md
 ```
 
 > No `uv` or `pipx`? `pip install skeletree` works too — see [Install](#install) below.
