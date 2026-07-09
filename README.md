@@ -1,129 +1,283 @@
+<p align="center">
+  <img src="public/skeletree-logo.png" alt="skeletree logo" width="200">
+</p>
+
 # 🌳 skeletree
 
-**A token-cheap skeleton of any repo — so your AI coding agent stops burning 50K tokens just to learn the codebase.**
+**Stop burning 50K tokens every time your AI agent opens a repo.**
+
+```
+$ uvx skeletree
+
+  🌳 skeletree · scanning myapp
+  ✔ 47 files parsed (Python, TypeScript)
+  ✔ 312 symbols extracted
+  ✔ skeletree-myapp.md written — map≈5.1K tok · ~90% smaller
+```
+
+**🔒 100% local — your code never leaves your machine. No API calls, no telemetry.**
 
 [![CI](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml/badge.svg)](https://github.com/daudibrahimhasan/skeletree/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/skeletree.svg)](https://pypi.org/project/skeletree/)
+[![Downloads](https://img.shields.io/pypi/dm/skeletree.svg)](https://pypi.org/project/skeletree/)
 [![Python](https://img.shields.io/pypi/pyversions/skeletree.svg)](https://pypi.org/project/skeletree/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+---
+
+## Table of contents
+
+- [How it works](#how-it-works)
+- [Real repos, real savings](#real-repos-real-savings)
+- [What's in the map](#whats-in-the-map)
+- [Why skeletree?](#why-skeletree)
+- [Install](#install)
+- [Usage](#usage)
+- [Wire it into Claude Code](#wire-it-into-claude-code-permanent-setup)
+- [Languages](#languages)
+- [Dependency detection](#dependency-detection)
+- [How the token metric works](#how-the-token-metric-works)
+- [Config](#config-optional)
+- [Performance](#performance)
+- [Contributing](#contributing)
+
+---
+
 When Claude Code, Cursor, or Aider opens an unfamiliar repo, the first thing it does is *read files* — a lot of them — just to figure out the shape of the codebase. That exploration routinely costs **30–80K tokens** before any real work starts.
 
-`skeletree` does that once, deterministically, for almost nothing:
+`skeletree` does that exploration once, deterministically, for almost nothing:
 
 ```bash
 uvx skeletree
 ```
 
-One command scans your repo and writes `PROJECT_MAP.md` — a directory tree plus every class, function, and signature, **with no function bodies**. Point your agent at that one file and it learns the codebase in a single cheap read.
-
-```
-map ≈ 5.1K tokens · full-read baseline ≈ 51K · ~90% smaller
-```
-
-That number is the whole point — and skeletree prints it every run, on your actual repo.
+One command scans your repo and writes `skeletree-<projectname>.md` — a compact map containing the **project description**, **library dependencies**, **directory tree**, and every **class, function, and signature**, with no function bodies. An agent reads that one file and knows the codebase cold.
 
 ---
 
-## Why a map instead of reading files?
+## How it works
 
-An agent doesn't need the *body* of `parse_config()` to know it exists, what it takes, and what it returns. It needs the **shape**: where things live and how they connect. Bodies are 90% of the tokens and 10% of the orientation value. skeletree keeps the shape and throws away the bodies — then tells you exactly how much you saved.
+<div align="center">
 
-It's just a Markdown file, so it works with **any** agent or workflow — Claude Code, Cursor, Aider, Copilot, your own scripts.
-
-## Install / Run
-
-No install needed:
-
-```bash
-uvx skeletree            # uv
-pipx run skeletree       # pipx
+```mermaid
+graph TD
+    Repo[Your Repo] --> Scan[skeletree scan]
+    Scan --> Desc[Project Description]
+    Scan --> Deps[Library Dependencies]
+    Scan --> Tree[Directory Tree]
+    Scan --> Symbols[Symbols & Signatures]
+    Desc & Deps & Tree & Symbols --> Map[skeletree-name.md]
+    Map --> Agent[(AI Agent reads one file)]
 ```
 
-Or install it:
+</div>
+
+---
+
+## Real repos, real savings
+
+Tested across five real projects spanning Python, Kotlin, TypeScript, and multi-language stacks:
+
+| Project | Domain | Stack | Map size | Savings |
+| :--- | :--- | :--- | ---: | ---: |
+| **`oss-hunter`** | Dev tooling / automation | Python, GitHub API | ~890 tok | **−92%** |
+| **`wc2026-ml`** | ML & analytics | LightGBM, Keras, Pandas | ~32.8K tok | **−99%** |
+| **`sapphire-app`** | Mobile (Android) | Kotlin, Compose, Room | ~467 tok | **−99%** |
+| **`thesisMap`** | Academic matching | React, Supabase, Python | ~1.0K tok | **−100%** |
+| **`whattheproject`** | Marketplace SaaS | Next.js, Supabase, GenAI | ~694 tok | **−100%** |
+
+<p align="center">
+  <img src="public/Screenshot%202026-07-09%20114202.png" alt="skeletree token savings across real projects" width="700">
+</p>
+
+---
+
+## What's in the map
+
+````markdown
+# myapp
+> A production-grade HTTP API for managing user accounts.
+> skeletree · map≈5.1K tok · ~90% smaller
+
+## Deps
+python: fastapi, sqlalchemy, pydantic, alembic | dev: pytest, ruff
+
+## Tree
+```
+myapp/
+  src/
+    api.py
+    models.py
+    auth.py
+  migrations/ (142 files)
+```
+
+## Symbols
+src/api.py
+- class Server — HTTP entry point.
+  - async start(self, port: int) -> None
+  - route(self, path: str, handler)
+- create_app(config: Config) -> Server — Build the app from config.
+
+src/models.py
+- class User
+  - __init__(self, email: str, role: str)
+  - @property is_admin(self) -> bool
+````
+
+Every section is there for a reason:
+- **Description** — what the project does, pulled from `pyproject.toml`, `package.json`, or the README
+- **Deps** — runtime and dev libraries so the agent knows what's available without reading any manifest
+- **Tree** — directory structure; noisy dirs (migrations, fixtures, assets) collapse to a count
+- **Symbols** — every class, function, and method with its full signature and first docstring line — no bodies
+
+---
+
+## Why skeletree?
+
+You might already know about other tools. Here's how they compare:
+
+| | **skeletree** | **repomix** | **ctags** | **Aider repo-map** |
+| :--- | :--- | :--- | :--- | :--- |
+| **Output** | Single `.md` with description, deps, tree, and signatures | One giant concatenated file of all source code | Tags file (symbol → location index) | Internal tree-sitter map (not exportable) |
+| **Token cost** | ~90–100% smaller than raw source | Larger than raw source (adds boilerplate per file) | N/A (not designed for LLM consumption) | Hidden; re-computed every prompt |
+| **Deps & description** | ✅ Extracted from manifests | ❌ | ❌ | ❌ |
+| **Incremental cache** | ✅ mtime + size keyed | ❌ Full re-concat | ✅ | ✅ |
+| **Works with any agent** | ✅ Plain `.md` / `.json` file | ✅ Plain text | Needs editor plugin | Aider only |
+| **Privacy** | 100% local, zero network calls | 100% local | 100% local | 100% local |
+
+**TL;DR:** `repomix` gives your agent *all* the code (expensive). `ctags` gives a symbol index editors understand but LLMs don't. Aider's repo-map is good but locked inside Aider. `skeletree` gives any agent a *minimal, structured overview* — just enough to navigate, cheap enough to include in every prompt.
+
+---
+
+## Install
+
+No install needed for a one-off run:
+
+```bash
+uvx skeletree       # uv
+pipx run skeletree  # pipx
+```
+
+Install globally to use in any project:
+
+```bash
+pipx install skeletree
+```
+
+Or into a project venv:
 
 ```bash
 pip install skeletree
-skeletree                # writes PROJECT_MAP.md in the current repo
 ```
+
+---
 
 ## Usage
 
 ```bash
-skeletree                      # map the current dir → PROJECT_MAP.md
-skeletree path/to/repo         # map another repo
-skeletree -o -                 # print to stdout instead of a file
-skeletree --format json        # machine-readable output
-skeletree --max-files 2000     # cap the scan
-skeletree --no-cache           # ignore the incremental cache
+skeletree                   # scan current dir → skeletree-<name>.md
+skeletree path/to/repo      # scan a different repo by path
+skeletree -o -              # print the map to stdout instead of writing a file
+skeletree --format json     # emit machine-readable JSON (useful for piping into
+                            #   other tools or building custom dashboards)
+skeletree --max-files 2000  # cap the number of files parsed — helpful for massive
+                            #   monorepos where you only need a partial overview
+skeletree --no-cache        # force a full re-parse, ignoring the incremental cache
 ```
 
-### Wire it into Claude Code
+---
+
+## Wire it into Claude Code (permanent setup)
+
+Run once inside your project:
 
 ```bash
 skeletree init
 ```
 
-This adds a one-line pointer to your `CLAUDE.md` (`Project map: see PROJECT_MAP.md`) so the agent actually uses the map, and prints an opt-in `SessionStart` hook snippet that regenerates the map at the start of every session — so it never goes stale. The hook is *printed*, never written for you.
+This creates a `CLAUDE.md` file telling Claude to read the map before doing anything, and prints an opt-in `SessionStart` hook snippet you can paste into your Claude Code `settings.json` to auto-regenerate the map on every session start.
 
-## What the map looks like
+Or set it up manually — create these two files in your project:
 
-````markdown
-# 🌳 myapp — Project Map
-
-> **map ≈ 5.1K tokens · full-read baseline ≈ 51K · ~90% smaller**
->
-> Signatures only — no function bodies. Generated by `skeletree`.
-
-## Tree
-```text
-myapp/
-  src/
-    api.py
-    models.py
-  migrations/ (142 files)
+**`CLAUDE.md`**
+```markdown
+Project map: see `skeletree-<name>.md` — regenerate with `skeletree`.
+Read it before doing anything.
 ```
 
-## Symbols
+**`.claude/settings.json`**
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "skeletree --quiet" }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### `src/api.py` · python
-- `class Server` — HTTP entry point.
-  - `async start(self, port: int) -> None`
-  - `route(self, path: str, handler)`
-- `def create_app(config: Config) -> Server` — Build the app from config.
-````
+Now every Claude Code session automatically regenerates the map and reads it before touching any code. Works with Cursor and Aider too — just point them at the `.md` file.
+
+---
 
 ## Languages
 
-Python is handled by the standard-library `ast` (zero dependencies, richest output). Everything else goes through [tree-sitter](https://tree-sitter.github.io/) with prebuilt wheels — **no compiler required**:
+Python is extracted with the stdlib `ast` module (zero extra dependencies, richest output). Everything else goes through [tree-sitter](https://tree-sitter.github.io/) with prebuilt wheels — **no compiler required**:
 
 **Python · JavaScript · TypeScript · TSX · Go · Rust · Java · Ruby · C · C++**
 
 Unknown file types still appear in the tree, just without a symbol breakdown.
 
+---
+
+## Dependency detection
+
+skeletree reads the most common manifests and lists library names only — no version pins, to stay token-cheap:
+
+| File | Ecosystem |
+|------|-----------|
+| `pyproject.toml` (PEP 621 + Poetry) | Python |
+| `requirements.txt` / `requirements-dev.txt` | Python |
+| `package.json` | Node |
+| `Cargo.toml` | Rust |
+| `go.mod` | Go |
+
+---
+
 ## How the token metric works
 
-skeletree estimates tokens with the well-worn `chars / 4` heuristic. It's deliberately *not* a real tokenizer: the value of the map is the **ratio** (map vs. reading every file in full), and `chars/4` tracks Claude's tokenizer closely enough for that ratio while adding zero dependencies. (tiktoken is OpenAI's tokenizer, not Claude's — depending on it would be both heavy and wrong.) The number is approximate, and skeletree says so.
+skeletree estimates tokens using the `chars / 4` heuristic. It's deliberately not a real tokenizer: the value is the **ratio** (map vs. reading every file in full), and `chars/4` tracks Claude's tokenizer closely enough for that ratio while adding zero dependencies. The number is approximate, and skeletree says so.
+
+---
 
 ## Config (optional)
 
-Zero-config by default. To customize, add a `[tool.skeletree]` table to `pyproject.toml`, or a standalone `.skeletree.toml`:
+Zero-config by default. To customize, add a `[tool.skeletree]` table to `pyproject.toml` or a standalone `.skeletree.toml`:
 
 ```toml
 [tool.skeletree]
-out = "PROJECT_MAP.md"
+out = "custom-name.md"   # override the default skeletree-<name>.md
 format = "md"            # md | json
 max_files = 5000
-collapse_threshold = 40  # collapse dirs with more than N files
+collapse_threshold = 40  # collapse dirs with more than N direct files
 ignore_dirs = ["fixtures", "snapshots"]
 ignore = ["**/*.generated.*"]
 ```
 
 skeletree always honors your `.gitignore` and skips the usual noise (`.git`, `node_modules`, `venv`, `dist`, `target`, …) automatically.
 
+---
+
 ## Performance
 
-An incremental cache (`.skeletree-cache.json`, keyed by path + mtime + size) means re-runs only re-parse files that actually changed — so the `SessionStart` hook is effectively free on an unchanged repo.
+An incremental cache (`.skeletree-cache.json`, keyed by path + mtime + size) means re-runs only re-parse changed files — so the `SessionStart` hook is effectively free on an unchanged repo.
+
+---
 
 ## Contributing
 
